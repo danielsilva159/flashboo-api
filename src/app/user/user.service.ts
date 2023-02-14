@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserEntity } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUseDTO } from './dto/createUserDTO';
@@ -17,7 +17,13 @@ export class UserService {
     data.password = await bcrypt.hash(data.password, 10);
     const user = await this.findUseEmail(data.email);
     if (user) {
-      throw new Error('Esse e-mail ja existe na base de dados');
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: 'Esse e-mail ja existe na base de dados',
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     await this.userRepository.save(this.userRepository.create(data));

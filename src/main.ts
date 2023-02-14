@@ -8,7 +8,14 @@ async function bootstrap() {
     methods: ['get', 'post', 'put', 'delete', 'patch'],
     origin: '*',
   });
-  app.useGlobalPipes(new ValidationPipe());
+  // Pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   await app.listen(3000);
 }
 bootstrap();
