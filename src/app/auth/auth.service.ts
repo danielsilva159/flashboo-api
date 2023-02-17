@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UnauthorizedError } from './errors/unauthorizedError.error';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -41,5 +41,19 @@ export class AuthService {
     throw new UnauthorizedError(
       'Email address or password provided is incorrect.',
     );
+  }
+
+  async refresh(token: string) {
+    try {
+      const tokenDecode = await this.jwtService.verifyAsync(token);
+      console.log(tokenDecode);
+
+      const payload = { email: tokenDecode.email, sub: tokenDecode.sub };
+      return {
+        access_token: this.jwtService.sign(payload, { expiresIn: '10s' }),
+      };
+    } catch (error) {
+      throw new HttpException('Token inválido', HttpStatus.BAD_REQUEST);
+    }
   }
 }
